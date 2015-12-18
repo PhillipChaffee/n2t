@@ -15,5 +15,5 @@ CHIP RAM64 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    RAM8(
 }
