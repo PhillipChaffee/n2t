@@ -11,11 +11,26 @@
     M=0  //  sum=0
 (LOOP)
     @i
-    D=M  // D=i
+    D=M    // D=i
     @1
-    D=D-M
+    D=D-M  // D=i-RAM[1]
+    @STORE
+    D;JGT  // If (i-RAM[1])>0 goto STORE
+    @0
+    D=M    // D=RAM[0]
+    @sum
+    M=M+D  // Add RAM[0] to total sum
+    @i
+    M=M+1  // Increment i
+    @LOOP
+    0;JMP
+(STORE)
+    @sum
+    D=M    // D=sum
+    @2
+    M=D    // RAM[2]=sum
+(END)
     @END
-    D;JGT
-    @1
+    0;JMP
     
     
