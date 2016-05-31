@@ -39,25 +39,24 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    Not(in=instruction[0], out=aInstruction);
-    Mux16(a=instruction[0..15], b=aluOut, sel=aInstruction , out=registerAValue);
-    Or(a=aInstruction, b=instruction[10], out=loadRegisterA);
-    ARegister(in=registerAValue, load=loadRegisterA, out[1..15]=registerAOut, out[1..15]=addressM);
-    And(a=instruction[0], b= instruction[3], out=selAOrMem);
-    Mux16(a[0]=false, a[1..15]=registerAOut, b=inM[0..15], sel=selAOrMem, out=aOrMemory);
-    And(a=instruction[0], b= instruction[11], out =loadRegisterD);
+    Not(in=instruction[15], out=aInstruction);
+    Mux16(a=aluOut, b=instruction[0..15], sel=aInstruction, out=registerAValue);
+    Or(a=aInstruction, b=instruction[5], out=loadRegisterA);
+    ARegister(in=registerAValue, load=loadRegisterA, out[0..15]=registerAOut, out[0..14]=addressM);
+    Mux16(a[0..15]=registerAOut, b=inM[0..15], sel=instruction[12], out=aOrMemory);
+    And(a=instruction[15], b= instruction[4], out =loadRegisterD);
     DRegister(in=aluOut, load=loadRegisterD, out=registerDOut);
-    ALU(x[0..15]=registerDOut, y[0..15]=aOrMemory, zx=instruction[4], nx=instruction[4], zy=instruction[4], ny=instruction[4], f=instruction[4], no=instruction[4], out=aluOut, out=outM[0..15], zr=aluOutZero, ng=aluOutNegative);
-    And(a=instruction[0], b=instruction[12], out=writeM);
-    And(a=aluOutZero, b=aluOutNegative, out=aluOutNotPositive);
+    ALU(x[0..15]=registerDOut, y[0..15]=aOrMemory, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOut, out=outM[0..15], zr=aluOutZero, ng=aluOutNegative);
+    And(a=instruction[15], b=instruction[3], out=writeM);
+    Or(a=aluOutZero, b=aluOutNegative, out=aluOutNotPositive);
     Not(in=aluOutNotPositive, out=aluOutPositive);
-    And(a=instruction[13], b=aluOutNegative, out=jump1);
-    And(a=instruction[14], b=aluOutZero, out=jump2);
-    And(a=instruction[15], b=aluOutPositive, out=jump3);
+    And(a=instruction[2], b=aluOutNegative, out=jump1);
+    And(a=instruction[1], b=aluOutZero, out=jump2);
+    And(a=instruction[0], b=aluOutPositive, out=jump3);
     Or(a=jump1, b=jump2, out=jumpA);
     Or(a=jumpA, b=jump3, out=jumpC);
-    And(a=jumpC, b=instruction[0], out=jump);
+    And(a=jumpC, b=instruction[15], out=jump);
     Or(a=jump, b=reset, out=dontIncrement);
     Not(in=dontIncrement, out=increment);
-    PC(in[0]=false, in[1..15]=registerAOut, reset=reset, load=jump, inc=increment, out[1..15]=pc[0..14]);
+    PC(in[0..15]=registerAOut, reset=reset, load=jump, inc=increment, out[0..14]=pc[0..14]);
 }
